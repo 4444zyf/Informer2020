@@ -1,4 +1,4 @@
-name: regional_pmm
+name: informer
 channels:
   - conda-forge
   - defaults
