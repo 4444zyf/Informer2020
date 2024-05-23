@@ -234,6 +234,7 @@ class Exp_Informer(Exp_Basic):
             path = os.path.join(self.args.checkpoints, setting)
             best_model_path = path+f"/{checkpoint_name}.pth"
             self.model.load_state_dict(torch.load(best_model_path))
+            print(f"成功加载checkpoint: {checkpoint_name}")
 
         self.model.eval()
         
@@ -253,6 +254,7 @@ class Exp_Informer(Exp_Basic):
             os.makedirs(folder_path)
         
         np.save(folder_path+'real_prediction.npy', preds)
+        print(f"成功保存预测数据。")
         return preds
 
     def _process_one_batch(self, dataset_object, batch_x, batch_y, batch_x_mark, batch_y_mark):

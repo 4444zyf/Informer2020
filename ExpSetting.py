@@ -132,4 +132,7 @@ class ExpSetting:
             data = exp.predict(setting, checkpoint_name)
         torch.cuda.empty_cache()
         if data is not None and show:
+            print('Predicted data: ')
             print(data)
+            return data
+        return
