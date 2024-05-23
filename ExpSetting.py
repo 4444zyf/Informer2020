@@ -2,7 +2,7 @@ import torch
 from types import SimpleNamespace
 from pprint import pprint
 from exp.exp_informer import Exp_Informer
-
+import gc
 class ExpSetting:
     def __init__(self, **kwargs):
         # 定义默认参数
@@ -102,7 +102,7 @@ class ExpSetting:
         else:
             raise KeyError(f"Parameter '{param}' is not a valid parameter")
 
-    def train(self, **kwargs):
+    def train(self, checkpoint_name, **kwargs):
         for arg in kwargs:
             self.set_param(arg, kwargs[arg])
         args = self.args  
@@ -112,23 +112,12 @@ class ExpSetting:
                 args.embed, args.distil, args.mix, args.des, 1)
         exp = Exp_Informer(args)
         print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-        exp.train(setting)
+        exp.train(setting, checkpoint_name)
+        exp.test(setting, checkpoint_name)
         torch.cuda.empty_cache()
+
         
-    def test(self, **kwargs):
-        for arg in kwargs:
-            self.set_param(arg, kwargs[arg])
-        args = self.args
-        setting = '{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_at{}_fc{}_eb{}_dt{}_mx{}_{}_{}'.format(args.model, args.data, args.features, 
-                args.seq_len, args.label_len, args.pred_len,
-                args.d_model, args.n_heads, args.e_layers, args.d_layers, args.d_ff, args.attn, args.factor, 
-                args.embed, args.distil, args.mix, args.des, 1)
-        exp = Exp_Informer(args)
-        print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-        exp.test(setting)
-        torch.cuda.empty_cache()
-        
-    def predict(self, **kwargs):
+    def predict(self, checkpoint_name, show=False,**kwargs):
         self.set_param('do_predict', True)
         for arg in kwargs:
             self.set_param(arg, kwargs[arg])
@@ -140,5 +129,7 @@ class ExpSetting:
         exp = Exp_Informer(args)
         if args.do_predict:
             print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            exp.predict(setting, True)
+            data = exp.predict(setting, checkpoint_name)
         torch.cuda.empty_cache()
+        if data is not None and show:
+            print(data)
